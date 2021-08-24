@@ -1,15 +1,34 @@
 const express = require("express");
+const pool = require("../postgress");
 
 module.exports = {
   getLists: (req, res) => {
-    const menu = {
-      "Number 9": 1.99,
-      "Number 9 Large": 2.99,
-      "Number 6 with Extra Dip": 3.25,
-      "Number 7": 3.99,
-      "Number 45": 3.45,
-    };
-
-    return res.status(200).json({ menu: menu });
+    let promises = [];
+    var lists ={}
+    pool.query(
+      "SELECT COUNT(task_id) FROM task WHERE important=true",
+      (error, results) => {
+        lists.important = results.rows[0].count;
+        pool.query(
+          "SELECT COUNT(task_id) FROM task WHERE myday=true",
+          (error, results) => {
+            lists.myday = results.rows[0].count;
+            pool.query(
+              "SELECT COUNT(task_id) FROM task WHERE done=false",
+              (error, results) => {
+                lists.all = results.rows[0].count;
+                pool.query(
+                  "SELECT list_title AS name,COUNT(task_id) AS undone FROM task where done=false AND list_title IS NOT NULL  GROUP BY list_title",
+                  (error, results) => {
+                    lists.lists = results.rows;
+                    res.status(200).json(lists);
+                  }
+                );
+              }
+            );
+          }
+        );
+      }
+    );
   },
 };
