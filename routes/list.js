@@ -4,5 +4,6 @@ const router = express.Router()
 const listService = require('../services/list.service')
 
 router.get('/', listService.getLists)
+router.post('/', listService.addList)
 
 module.exports = router
