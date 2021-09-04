@@ -65,6 +65,22 @@ module.exports = {
       }
     );
   },
+  deleteList:(req,res)=>{
+    let list_title = req.body.title
+    pool.query(
+      `DELETE FROM task WHERE list_titile='${list_title}'`,
+      (error)=>{
+        if(error) console.log(error)
+        pool.query(
+          `DELETE FROM list WHERE list_titile='${list_title}'`,
+          (error)=>{
+              if(error) console.log(error);
+              res.status(200).json('deleted');
+            }
+          )
+      }
+    )
+  },
   getLists: (req, res) => {
     var lists = {};
     pool.query(
